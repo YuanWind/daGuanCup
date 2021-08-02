@@ -97,10 +97,10 @@ def train(**args):
     res = {'id': [], 'label': []}
     test_data = load_pkl(cfg.test_file)
     for index, inst in enumerate(test_data):
-        idx = inst.idx,
-        label = pred_labels[index]
+        idx = inst.idx
+        label_id = pred_labels[index]
         res['id'].append(idx)
-        res['label'].append(label)
+        res['label'].append(vocab.id2label[label_id])
     res = pandas.DataFrame(res)
     res.to_csv('res.csv', index=False)
 
@@ -121,15 +121,15 @@ def predict(**args):
     pred_labels = np.argmax(preds, axis=-1)
     res = {'id': [], 'label': []}
     for index, inst in enumerate(test_data):
-        idx = inst.idx,
-        label = pred_labels[index]
+        idx = inst.idx
+        label_id = pred_labels[index]
         res['id'].append(idx)
-        res['label'].append(label)
+        res['label'].append(vocab.id2label[label_id])
     res = pandas.DataFrame(res)
     res.to_csv('res.csv', index=False)
 
 
 if __name__ == '__main__':
-    train(num_train_epochs=20)
-    # fire.Fire(train)
-    # fire.Fire({'train': train, 'pred': predict})
+#     train(num_train_epochs=20)
+#     fire.Fire(train)
+    fire.Fire({'train': train, 'pred': predict})
