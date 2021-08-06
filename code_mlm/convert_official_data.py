@@ -45,17 +45,17 @@ def main(unlabel_data='data/ori_data/sample_unlabel_data_10000.json',
     test_data=[]
     if 'unlabel' in train_mode:
         train_data+=unlabel_data
-    if 'train' in train_mode:
-        train_data+=train_data
+    # if 'train' in train_mode:
+    train_data+=ori_train_data
     if 'test' in train_mode:
-        train_data+=test_data
+        train_data+=ori_test_data
 
     if 'unlabel' in test_mode:
         test_data+=unlabel_data
-    if 'train' in train_mode:
-        test_data+=train_data
-    if 'test' in train_mode:
-        test_data+=test_data
+    if 'train' in test_mode:
+        test_data+=ori_train_data
+    # if 'test' in test_mode:
+    test_data+=ori_test_data
 
     with open(train_out_file, 'w', encoding='utf-8') as f:
         for data in tqdm(train_data):
@@ -70,7 +70,6 @@ def main(unlabel_data='data/ori_data/sample_unlabel_data_10000.json',
                 f.write(word + ' ')
                 if not word.isdigit():
                     f.write('\n')
-
 
 if __name__ == '__main__':
     fire.Fire(main)

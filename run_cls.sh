@@ -1,3 +1,1 @@
-export CUDA_VISIBLE_DEVICES=6
-
-nohup python -u  main.py > 'tmp/log.out' 2>&1 &
+nohup python -u  code_cls/main.py > 'tmp/log.out' 2>&1 &

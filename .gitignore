@@ -5,4 +5,5 @@ data/ori_data
 pretrained
 tmp
 test.py
+tokenizer
 
