@@ -1,17 +1,15 @@
-import fire
-import json
-from collections import Counter
-from tqdm.auto import tqdm
-from transformers import BertTokenizer
-from nltk import ngrams
 import pickle as pkl
+from collections import Counter
 
-def construct_ngram_dict(input_file,
-                         output_file,
-                         tokenizer_path,
+import fire
+from nltk import ngrams
+from tqdm.auto import tqdm
+
+
+def construct_ngram_dict(input_file="data/mlm_data/tokenizer_data.txt",
+                         output_file="data/mlm_data/ngram_words.pkl",
                          min_frequence=10,
                          max_ngram=3):
-    # tokenizer = BertTokenizer.from_pretrained(tokenizer_path)
     token_counter = Counter()
     for line in tqdm(open(input_file)):
         line = line.strip()
@@ -20,7 +18,6 @@ def construct_ngram_dict(input_file,
     ngram_dict = {}
     for k, v in tqdm(token_counter.most_common()):
         if v >= min_frequence:
-            # k = tuple(tokenizer.convert_tokens_to_ids(item) for item in k)
             ngram_dict[k] = v
         else:
             break
@@ -38,8 +35,5 @@ def construct_ngram_dict(input_file,
     with open(output_file, 'wb') as fout:
         pkl.dump(output_ngram_words, fout)
 
-
 if __name__ == '__main__':
-    construct_ngram_dict("data/mlm_data/tokenizer_data.txt",
-                         "data/mlm_data/ngram_words.pkl",
-                        "tokenizer")
+    fire.Fire(construct_ngram_dict)

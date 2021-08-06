@@ -1,4 +1,6 @@
 import pickle as pkl
+
+import fire
 from transformers import BertTokenizer
 from gensim.models import KeyedVectors
 from tqdm.auto import tqdm
@@ -23,9 +25,7 @@ def construct_ngram_meta_info(w2v_file="data/mlm_data/w2v.model",
     ngram_dict = {
         "ngrams": {i: [] for i in range(1, 5)},
         "ngrams_set": {},
-        "sim_ngrams": {
-
-        }
+        "sim_ngrams": {}
     }
     #
     tokenizer = BertTokenizer.from_pretrained(tokenizer_path)
@@ -50,4 +50,5 @@ def construct_ngram_meta_info(w2v_file="data/mlm_data/w2v.model",
         pkl.dump(ngram_dict, fout)
 
 if __name__ == '__main__':
-    construct_ngram_meta_info()
+    fire.Fire(construct_ngram_meta_info)
+

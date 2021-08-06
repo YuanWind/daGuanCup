@@ -1,13 +1,11 @@
-import fire
 import logging
 import os
-import torch
-import numpy as np
 import random
-from torch import nn
-from tqdm.auto import tqdm
-from tokenizers import BertWordPieceTokenizer, ByteLevelBPETokenizer
-from transformers import BertTokenizer, BertForMaskedLM
+import fire
+import numpy as np
+import torch
+from tokenizers import BertWordPieceTokenizer
+from transformers import BertTokenizer
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)

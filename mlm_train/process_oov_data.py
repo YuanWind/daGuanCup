@@ -62,21 +62,12 @@ def process_oov_df(input_df, normal_vocab, idmap, min_frequence=3):
 def process_oov_file(input_file,
                      output_file,
                      normal_vocab,
-                     idmap,
-                     mode='train'):
+                     idmap):
     input_df = pd.read_csv(input_file, header=None, delimiter='\t')
-    # if mode == 'train':
-    #     output_df1 = process_oov_df(input_df, normal_vocab, min_frequence=3)
-    #     output_df2 = process_oov_df(input_df, normal_vocab, min_frequence=1)
-    #     output_df = pd.concat([output_df1, output_df2])
-    #     output_df = output_df.drop_duplicates()
-    # else:
-    #     output_df = process_oov_df(input_df, normal_vocab, min_frequence=1)
     output_df = process_oov_df(input_df, normal_vocab, idmap, min_frequence=3)
     output_df.to_csv(output_file, header=None, sep='\t', index=False)
 
-def process_oov_words(unlabel_file='data/mlm_data/unlabel_data.tsv',
-                      train_file='data/mlm_data/train.tsv',
+def process_oov_words(train_file='data/mlm_data/train.tsv',
                       test_file='data/mlm_data/test.tsv',
                       output_dir='data/mlm_data'):
     os.makedirs(output_dir, exist_ok=True)
@@ -85,13 +76,8 @@ def process_oov_words(unlabel_file='data/mlm_data/unlabel_data.tsv',
                                           os.path.join(output_dir, 'normal_vocab.json'),
                                           os.path.join(output_dir, 'idmap.json'))
     logger.info('process oov file...')
-    process_oov_file(unlabel_file, os.path.join(output_dir, 'unlable_mlm.tsv'), normal_vocab, idmap,
-                     mode='train')
-    process_oov_file(train_file, os.path.join(output_dir, 'train_mlm.tsv'), normal_vocab, idmap,
-                     mode='train')
-    process_oov_file(test_file, os.path.join(output_dir, 'test_mlm.tsv'), normal_vocab, idmap,
-                     mode='test')
-
+    process_oov_file(train_file, os.path.join(output_dir, 'train_mlm.tsv'), normal_vocab, idmap)
+    process_oov_file(test_file, os.path.join(output_dir, 'test_mlm.tsv'), normal_vocab, idmap)
 
 if __name__ == '__main__':
     fire.Fire(process_oov_words)

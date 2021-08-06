@@ -2,7 +2,6 @@ import fire
 import sys
 sys.path.extend(['../../','../','./'])
 from simpletransformers_addons.models.pair_lm.pair_lm_model import LanguageModelingModel, LanguageModelingArgs
-
 import logging
 
 def train_mlm(model_name='chinese-bert-wwm-ext',
