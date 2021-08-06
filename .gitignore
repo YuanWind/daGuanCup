@@ -1,6 +1,7 @@
 .idea
 data/mlm_data
 data/ori_data
+*/__pycache__/*
 pretrained
 tmp
 
