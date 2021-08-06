@@ -1,5 +1,7 @@
 import fire
 import json
+import sys
+sys.path.extend(['../../','../','./'])
 import logging
 import os
 import pandas as pd
@@ -14,20 +16,19 @@ def process_oov_record(record, normal_vocab,
                        idmap,
                        min_frequence=5,
                        min_oov_word_idx=35000):
-    text_a = record
-    tokens_a = text_a.split()
+    text = record
+    tokens = text.split()
     oov_word_map = {}
     cur_oov_idx = min_oov_word_idx
-    for tokens in [tokens_a]:
-        for i in range(len(tokens)):
-            if normal_vocab.get(tokens[i], 0) < min_frequence:
-                if tokens[i] not in oov_word_map:
-                    oov_word_map[tokens[i]] = str(cur_oov_idx)
-                    cur_oov_idx += 1
-                tokens[i] = oov_word_map[tokens[i]]
-            else:
-                tokens[i] = idmap[tokens[i]]
-    return " ".join(tokens_a)
+    for i in range(len(tokens)):
+        if normal_vocab.get(tokens[i], 0) < min_frequence:
+            if tokens[i] not in oov_word_map:
+                oov_word_map[tokens[i]] = str(cur_oov_idx)
+                cur_oov_idx += 1
+            tokens[i] = oov_word_map[tokens[i]]
+        else:
+            tokens[i] = idmap[tokens[i]]
+    return ' '.join(tokens)
 
 
 def construct_normal_vocab(input_file,
