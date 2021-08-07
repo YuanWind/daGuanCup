@@ -1,26 +1,29 @@
 import fire
 import sys
-
 sys.path.extend(['../../', '../', './'])
+from utils.utils import load_pkl, write_pkl, load_json
 import logging
 from transformers import EvalPrediction, AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, DataCollatorWithPadding, Trainer
-
+from code_mlm.process_oov_data import process_oov_record
 import numpy as np
 import pandas
 from sklearn.metrics import precision_recall_fscore_support
 from Config import Config
-
 from utils.Dataloader import MyDataSet, Vocab
-from utils.utils import load_pkl, write_pkl, set_logger, load_json
 import os
+logging.basicConfig()
+logger = logging.getLogger('cls_main')
+logger.setLevel(logging.INFO)
 
 idmaps=load_json('data/mlm_data/idmap.json')
 num_token=load_json('data/mlm_data/vocab.json')
+normal_vocab=load_json('data/mlm_data/normal_vocab.json')
 def convert_example_to_features(inst, tokenizer, vocab):
     features = {'input_ids': None, 'attention_mask': None, 'token_type_ids': None, 'label_ids': None}
-    wordid=[idmaps[wid] for wid in inst.sentence]
-    words=[num_token['num2token'][int(wid)] for wid in wordid]
-    sentence = ''.join(words)
+    input_str=process_oov_record(' '.join(inst.sentence),normal_vocab,idmaps)
+    token_ids = [item for item in input_str.split() if item]
+    tokens = [num_token['num2token'][idx] for idx in token_ids]
+    sentence=''.join(tokens)
     label_12 = inst.label_12
 
     token_out = tokenizer(sentence)
@@ -51,9 +54,8 @@ def compute_metrics(p: EvalPrediction):
 
 def set_args(**args):
     config = Config(**args)
-    set_logger(config.log_file, to_console=True, to_file=True if config.log_file != '' else False)
+    # set_logger(config.log_file, to_console=True, to_file=True if config.log_file != '' else False)
     training_args = config.train_args()
-    logging.info('start set args...')
 
     return config, training_args
 
@@ -93,7 +95,6 @@ def train(**args):
     vocab, tokenizer, train_dataset, dev_dataset, test_dataset = get_data(cfg)
     num_labels = len(vocab.label2id)
     model = build_model(cfg.pre_model_file, num_labels)
-    logging.info('{}={}'.format(cfg.padding, cfg.max_length))
     data_collator = DataCollatorWithPadding(tokenizer, padding=cfg.padding, max_length=cfg.max_length)
 
     trainer = Trainer(model=model, args=training_args, data_collator=data_collator, train_dataset=train_dataset, eval_dataset=dev_dataset, compute_metrics=compute_metrics)
@@ -102,7 +103,7 @@ def train(**args):
     trainer.save_model(cfg.save_dir)
 
     dev_res = trainer.evaluate(dev_dataset)
-    logging.info(dev_res)
+    logger.info(dev_res)
     predict_res = trainer.predict(test_dataset)
     write_pkl(predict_res, cfg.save_dir + '/predict_res.pkl')
     preds = predict_res[0]
@@ -128,7 +129,7 @@ def predict(**args):
     trainer = Trainer(model=model, args=training_args, data_collator=data_collator, train_dataset=train_dataset, eval_dataset=dev_dataset, compute_metrics=compute_metrics)
     # 评测模型并生成测试集提交文件
     dev_res = trainer.evaluate(dev_dataset)
-    logging.info(dev_res)
+    logger.info(dev_res)
     predict_res = trainer.predict(test_dataset)
     write_pkl(predict_res, cfg.save_dir + '/predict_res.pkl')
     preds = predict_res[0]

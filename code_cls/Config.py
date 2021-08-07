@@ -1,6 +1,8 @@
 from transformers import TrainingArguments
 import logging
-
+logging.basicConfig()
+logger = logging.getLogger('config')
+logger.setLevel(logging.INFO)
 
 DEAUFALT_CONFIG = {
     'pre_model_file': 'mlm/chinese-bert-wwm-ext/outputs/',
@@ -8,15 +10,15 @@ DEAUFALT_CONFIG = {
     'dev_file': 'data/processed/dev.pkl',
     'test_file': 'data/processed/test.pkl',
     'vocab_file': 'saved/vocab.pkl',
-    'padding': 'max_length',
+    'padding': 'longest',
     'max_length':256,
     'save_dir': 'saved',
     'best_model_dir': 'saved_models',
     'output_dir': 'tmp/',
     'num_train_epochs': 2,
     'learning_rate': 2e-5,
-    'per_device_train_batch_size': 2,
-    'per_device_eval_batch_size': 2,
+    'train_batch_size': 2,
+    'eval_batch_size': 2,
     'do_train': True,
     'do_eval': True,
     'evaluation_strategy': 'steps',
@@ -48,22 +50,23 @@ class Config:
 
 
     def train_args(self):
-        logging.info('Config parms value list:')
+        logger.info('Config parms value list:')
         for k, v in DEAUFALT_CONFIG.items():
-            logging.info('{}={}'.format(k, v))
+            logger.info('{}={}'.format(k, v))
         res = TrainingArguments(
             output_dir=DEAUFALT_CONFIG.get('output_dir'),
             num_train_epochs=DEAUFALT_CONFIG.get('num_train_epochs'),
             learning_rate=DEAUFALT_CONFIG.get('learning_rate'),
-            per_device_train_batch_size=DEAUFALT_CONFIG.get('per_device_train_batch_size'),
-            per_device_eval_batch_size=DEAUFALT_CONFIG.get('per_device_eval_batch_size'),
+            per_device_train_batch_size=DEAUFALT_CONFIG.get('train_batch_size'),
+            per_device_eval_batch_size=DEAUFALT_CONFIG.get('eval_batch_size'),
             do_train=DEAUFALT_CONFIG.get('do_train'),
             do_eval=DEAUFALT_CONFIG.get('do_eval'),
             evaluation_strategy=DEAUFALT_CONFIG.get('evaluation_strategy'),
             eval_steps=DEAUFALT_CONFIG.get('eval_steps'),
             save_total_limit=DEAUFALT_CONFIG.get('save_total_limit'),
             load_best_model_at_end=DEAUFALT_CONFIG.get('load_best_model_at_end'),
-            metric_for_best_model=DEAUFALT_CONFIG.get('metric_for_best_model')
+            metric_for_best_model=DEAUFALT_CONFIG.get('metric_for_best_model'),
+            report_to='tensorboard'
 
         )
         return res

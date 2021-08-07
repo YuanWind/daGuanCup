@@ -1,9 +1,17 @@
 .idea
 data/mlm_data
 data/ori_data
-*/__pycache__/*
+*/__pycache__
+*/*/__pycache__
+*/*/*/__pycache__
 pretrained
 tmp
 test.py
 tokenizer
+tmp
+mlm
+*.out
+*.log
+saved
+runs
 

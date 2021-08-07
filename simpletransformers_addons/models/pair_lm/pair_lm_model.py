@@ -848,7 +848,7 @@ class LanguageModelingModel:
                     if args.save_steps > 0 and global_step % args.save_steps == 0:
                         # Save model checkpoint
                         output_dir_current = os.path.join(output_dir, "checkpoint-{}".format(global_step))
-
+                        print('save to {}......'.format(output_dir_current))
                         self.save_model(output_dir_current, optimizer, scheduler, model=model)
 
                     if args.evaluate_during_training and (

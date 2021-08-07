@@ -5,4 +5,4 @@ python code_mlm/train_tokenizer.py
 python code_mlm/construct_ngram_dict.py
 python code_mlm/train_w2v.py
 python code_mlm/construct_ngram_meta_info.py
-#python code_mlm/train_mlm.py --batch_size 128 --num_epochs 200
+#nohup python code_mlm/train_mlm.py --batch_size 80 --num_epochs 200 > mlm_200.log 2>&1 &

@@ -39,7 +39,7 @@ def train_mlm(train_file='data/mlm_data/train_mlm.tsv.str',
         # line_by_line
     model_args.save_model_every_epoch = False
     model_args.save_eval_checkpoints = False
-    model_args.save_steps = 0
+    model_args.save_steps = 10*8000 # 每10轮保存一个模型
     model_args.save_best_model = False
     model_args.evaluate_during_training = False
     model_args.eval_batch_size=16
@@ -68,7 +68,7 @@ def train_mlm(train_file='data/mlm_data/train_mlm.tsv.str',
         }
 
     model = LanguageModelingModel(
-        model_type, os.path.join('pretrained', model_name), args=model_args
+        model_type, os.path.join('hfl', model_name), args=model_args
     )
 
     if use_fgm:
