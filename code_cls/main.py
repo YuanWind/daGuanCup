@@ -144,7 +144,7 @@ def predict(**args):
         res['id'].append(idx)
         res['label'].append(vocab.id2label[label_id])
     res = pandas.DataFrame(res)
-    res.to_csv('res.csv', index=False)
+    res.to_csv('res_{:.3f}.csv'.format(dev_res['eval_f1']), index=False)
 
 
 if __name__ == '__main__':
