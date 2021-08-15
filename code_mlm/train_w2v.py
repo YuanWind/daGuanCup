@@ -46,7 +46,8 @@ def get_tokenized_sentence(sentence,
 
 
 def main(token_data_file="data/mlm_data/tokenizer_data.txt",
-         out_file="data/mlm_data/w2v.model"
+         out_file="data/mlm_data/w2v.model",
+         epochs=10
          ):
     sentences = []
 
@@ -71,7 +72,7 @@ def main(token_data_file="data/mlm_data/tokenizer_data.txt",
                      workers=32,
                      alpha=0.5,
                      min_alpha=0.0005,
-                     epochs=100,
+                     epochs=epochs,
                      batch_words=int(4e4),
                      callbacks=[callback()])
 

@@ -39,7 +39,7 @@ def main(unlabel_data='data/ori_data/sample_unlabel_data_10000.json',
         sentence=ori_train.loc[index,'text']+ ' 。 '
         ori_train_data.append(sentence)
     for index in ori_test.index:
-        sentence=ori_train.loc[index,'text']+ ' 。 '
+        sentence=ori_test.loc[index,'text']+ ' 。 '
         ori_test_data.append(sentence)
     train_data=[]
     test_data=[]

@@ -5,16 +5,16 @@ logger = logging.getLogger('config')
 logger.setLevel(logging.INFO)
 
 DEAUFALT_CONFIG = {
-    'pre_model_file': 'mlm/chinese-bert-wwm-ext/outputs/',
+    'pre_model_file': 'model_mlm',
     'train_file': 'data/processed/train.pkl',
     'dev_file': 'data/processed/dev.pkl',
     'test_file': 'data/processed/test.pkl',
-    'vocab_file': 'saved/vocab.pkl',
+    'vocab_file': 'saved_files/my_vocab.pkl',
     'padding': 'longest',
     'max_length':256,
-    'save_dir': 'saved',
-    'best_model_dir': 'saved_models',
-    'output_dir': 'tmp/',
+    'save_dir': 'saved_files',
+    'best_model_dir': 'model_cls',
+    'output_dir': '/content/tmp_cls',
     'num_train_epochs': 2,
     'learning_rate': 2e-5,
     'train_batch_size': 2,
@@ -23,10 +23,11 @@ DEAUFALT_CONFIG = {
     'do_eval': True,
     'evaluation_strategy': 'steps',
     'eval_steps': 200,
-    'save_total_limit': 5,
+    'save_steps': 200,
+    'save_total_limit': 2,
     'load_best_model_at_end': True,
     'metric_for_best_model': 'f1',
-    'log_file': ''
+    'log_dir': 'logs/cls'
 }
 
 
@@ -46,7 +47,7 @@ class Config:
         self.max_length=DEAUFALT_CONFIG.get('max_length')
         self.save_dir = DEAUFALT_CONFIG.get('save_dir')
         self.best_model_dir = DEAUFALT_CONFIG.get('best_model_dir')
-        self.log_file=DEAUFALT_CONFIG.get('log_file')
+        self.log_dir=DEAUFALT_CONFIG.get('log_dir')
 
 
     def train_args(self):
@@ -63,10 +64,12 @@ class Config:
             do_eval=DEAUFALT_CONFIG.get('do_eval'),
             evaluation_strategy=DEAUFALT_CONFIG.get('evaluation_strategy'),
             eval_steps=DEAUFALT_CONFIG.get('eval_steps'),
+            save_steps=DEAUFALT_CONFIG.get('save_steps'),
             save_total_limit=DEAUFALT_CONFIG.get('save_total_limit'),
             load_best_model_at_end=DEAUFALT_CONFIG.get('load_best_model_at_end'),
             metric_for_best_model=DEAUFALT_CONFIG.get('metric_for_best_model'),
-            report_to='tensorboard'
+            report_to='tensorboard',
+            logging_dir=DEAUFALT_CONFIG.get('log_dir')
 
         )
         return res

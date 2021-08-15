@@ -3,7 +3,6 @@ import sys
 sys.path.extend(['../../','../','./'])
 from simpletransformers_addons.models.pair_lm.pair_lm_model import LanguageModelingModel, LanguageModelingArgs
 import logging
-
 def train_mlm(train_file='data/mlm_data/train_mlm.tsv.str',
               test_file='data/mlm_data/test_mlm.tsv.str',
               model_name='chinese-bert-wwm-ext',
@@ -12,12 +11,14 @@ def train_mlm(train_file='data/mlm_data/train_mlm.tsv.str',
               gradient_accumulation_steps=1,
               num_epochs=200,
               manual_seed=124525601,
-              learning_rate=4e-5,
+              learning_rate=6e-5,
               min_learning_rate=0.0,
               use_relative_segment=False,
               use_fgm=False,
               fgm_epsilon=0.4,
-              model_number_id=1):
+              model_number_id=1,
+              out_base_dir='/content'
+              ):
     logging.basicConfig(level=logging.INFO)
     transformers_logger = logging.getLogger("transformers")
     transformers_logger.setLevel(logging.WARNING)
@@ -39,11 +40,14 @@ def train_mlm(train_file='data/mlm_data/train_mlm.tsv.str',
         # line_by_line
     model_args.save_model_every_epoch = False
     model_args.save_eval_checkpoints = False
-    model_args.save_steps = 10*8000 # 每10轮保存一个模型
+    model_args.save_steps = 10*867*64/batch_size # 每10轮保存一个模型
     model_args.save_best_model = False
     model_args.evaluate_during_training = False
     model_args.eval_batch_size=16
     model_args.evaluate_during_training_steps = 1000
+    model_args.tokenizer_name='tokenizer'
+    model_args.scheduler='cosine_schedule_with_warmup'
+    model_args.warmup_steps=867*64
     import os
     if use_relative_segment:
         test_dir = os.path.join('mlm', model_name + '_symmetric')
@@ -55,9 +59,9 @@ def train_mlm(train_file='data/mlm_data/train_mlm.tsv.str',
                 test_dir = os.path.join('mlm', model_name)
             else:
                 test_dir = os.path.join('mlm', model_name + f'{model_number_id}')
-    model_args.tensorboard_dir = os.path.join(test_dir, 'runs')
-    model_args.cache_dir = os.path.join(test_dir, 'cached')
-    model_args.output_dir = os.path.join(test_dir, 'outputs')
+    model_args.tensorboard_dir = os.path.join('logs', 'mlm_{}'.format(model_name))
+    model_args.cache_dir = os.path.join(out_base_dir,test_dir, 'cached')
+    model_args.output_dir = os.path.join(out_base_dir,test_dir, 'outputs')
     model_args.best_model_dir = os.path.join(test_dir, 'best_model')
 
     model_args.learning_rate = learning_rate
@@ -70,7 +74,6 @@ def train_mlm(train_file='data/mlm_data/train_mlm.tsv.str',
     model = LanguageModelingModel(
         model_type, os.path.join('hfl', model_name), args=model_args
     )
-
     if use_fgm:
         from simpletransformers_addons.model_wrappers import FGMWrapper
         model = FGMWrapper(model, epsilon=fgm_epsilon)

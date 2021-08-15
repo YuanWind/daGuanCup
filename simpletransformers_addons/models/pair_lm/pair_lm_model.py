@@ -303,6 +303,7 @@ class LanguageModelingModel:
 
         if self.args.tokenizer_name:
             self.tokenizer = tokenizer_class.from_pretrained(self.args.tokenizer_name)
+            logger.info('load tokenizer from {}.'.format(self.args.tokenizer_name))
         elif self.args.model_name:
             if self.args.model_name == "electra":
                 self.tokenizer = tokenizer_class.from_pretrained(

@@ -1,6 +1,5 @@
 import pickle as pkl
 from collections import Counter
-
 import fire
 from nltk import ngrams
 from tqdm.auto import tqdm
@@ -8,10 +7,10 @@ from tqdm.auto import tqdm
 
 def construct_ngram_dict(input_file="data/mlm_data/tokenizer_data.txt",
                          output_file="data/mlm_data/ngram_words.pkl",
-                         min_frequence=10,
+                         min_frequence=20,
                          max_ngram=3):
     token_counter = Counter()
-    for line in tqdm(open(input_file)):
+    for line in tqdm(open(input_file,encoding='utf-8')):
         line = line.strip()
         for ngram_num in range(2, max_ngram + 1):
             token_counter.update(["".join(item) for item in ngrams(line, ngram_num)])

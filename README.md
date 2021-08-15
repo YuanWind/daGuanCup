@@ -12,4 +12,11 @@
 5. 需要下载 chinese-bert-wwm-ext 模型到pretrained目录下，下载地址：https://www.aliyundrive.com/s/eCxtJokoT79
 6. data/ori_data/sample_unlabel_data_10000.json数据为从19G压缩无标注数据中抽出来了10000条json数据得到的,下载地址：https://www.aliyundrive.com/s/eCxtJokoT79
 7. 未完待续......
-    
+
+### 预训练部分待解决问题：
+
+1. 无标注数据选择多少
+2. 预训练方法选择几个
+
+
+### 

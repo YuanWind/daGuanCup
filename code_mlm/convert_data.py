@@ -38,7 +38,7 @@ def construct_tokenizer_data(input_file, output_file):
     with open(output_file, 'w', encoding='utf-8') as fout:
         with open(input_file, encoding='utf-8') as fin:
             for line in tqdm(fin):
-                fout.write(line + '\n')
+                fout.write(line)
 
 
 def convert_data(train_file='data/mlm_data/train_mlm.tsv',
@@ -50,13 +50,11 @@ def convert_data(train_file='data/mlm_data/train_mlm.tsv',
     vocab = construct_vocab(output_vocab_file=os.path.join(output_dir, 'vocab.json'))
 
     logger.info('convert ids record to string')
-    convert_record_style(train_file, vocab,
-                         train_file + '.str')
+    convert_record_style(train_file, vocab, train_file + '.str')
     convert_record_style(test_file, vocab, test_file + '.str')
 
     logger.info('constuct tokenizer training data')
-    construct_tokenizer_data(os.path.join(train_file + '.str'),
-                             os.path.join(output_dir, 'tokenizer_data.txt'))
+    construct_tokenizer_data(os.path.join(train_file + '.str'),os.path.join(output_dir, 'tokenizer_data.txt'))
 
 
 if __name__ == '__main__':

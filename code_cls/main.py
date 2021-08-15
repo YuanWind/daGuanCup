@@ -15,9 +15,9 @@ logging.basicConfig()
 logger = logging.getLogger('cls_main')
 logger.setLevel(logging.INFO)
 
-idmaps=load_json('data/mlm_data/idmap.json')
-num_token=load_json('data/mlm_data/vocab.json')
-normal_vocab=load_json('data/mlm_data/normal_vocab.json')
+idmaps=load_json('data/mlm_data/idmap.json') # 数字id到中文字符
+num_token=load_json('data/mlm_data/vocab.json') # 原文id到数字id
+normal_vocab=load_json('data/mlm_data/normal_vocab.json') # 数字id到出现次数
 def convert_example_to_features(inst, tokenizer, vocab):
     features = {'input_ids': None, 'attention_mask': None, 'token_type_ids': None, 'label_ids': None}
     input_str=process_oov_record(' '.join(inst.sentence),normal_vocab,idmaps)
@@ -40,6 +40,7 @@ def convert_example_to_features(inst, tokenizer, vocab):
     return features
 
 
+
 def compute_metrics(p: EvalPrediction):
     preds, labels = p
     preds = np.argmax(preds, axis=-1)
@@ -54,9 +55,7 @@ def compute_metrics(p: EvalPrediction):
 
 def set_args(**args):
     config = Config(**args)
-    # set_logger(config.log_file, to_console=True, to_file=True if config.log_file != '' else False)
     training_args = config.train_args()
-
     return config, training_args
 
 
@@ -64,12 +63,7 @@ def get_data(cfg):
     model_path = cfg.pre_model_file
     train_data = load_pkl(cfg.train_file)  # list类型
     dev_data = load_pkl(cfg.dev_file)  # list 类型
-    if not os.path.isfile(cfg.vocab_file):
-        vocab = Vocab()
-        vocab.build(train_data)
-        write_pkl(vocab, cfg.vocab_file)
-    else:
-        vocab = load_pkl(cfg.vocab_file)
+    vocab = load_pkl(cfg.vocab_file)
     # token_path='./pretrained_models/vocab.txt'
     tokenizer = AutoTokenizer.from_pretrained(model_path)
     train_samples = [convert_example_to_features(inst, tokenizer, vocab) for inst in train_data]
@@ -97,26 +91,30 @@ def train(**args):
     model = build_model(cfg.pre_model_file, num_labels)
     data_collator = DataCollatorWithPadding(tokenizer, padding=cfg.padding, max_length=cfg.max_length)
 
-    trainer = Trainer(model=model, args=training_args, data_collator=data_collator, train_dataset=train_dataset, eval_dataset=dev_dataset, compute_metrics=compute_metrics)
-
+    trainer = Trainer(model=model,
+                      args=training_args,
+                      data_collator=data_collator,
+                      train_dataset=train_dataset,
+                      eval_dataset=dev_dataset,
+                      compute_metrics=compute_metrics)
     trainer.train()
-    trainer.save_model(cfg.save_dir)
+    trainer.save_model(cfg.best_model_dir+'_{:.3f}'.format(trainer.state.best_metric))
 
-    dev_res = trainer.evaluate(dev_dataset)
-    logger.info(dev_res)
-    predict_res = trainer.predict(test_dataset)
-    write_pkl(predict_res, cfg.save_dir + '/predict_res.pkl')
-    preds = predict_res[0]
-    pred_labels = np.argmax(preds, axis=-1)
-    res = {'id': [], 'label': []}
-    test_data = load_pkl(cfg.test_file)
-    for index, inst in enumerate(test_data):
-        idx = inst.idx
-        label_id = pred_labels[index]
-        res['id'].append(idx)
-        res['label'].append(vocab.id2label[label_id])
-    res = pandas.DataFrame(res)
-    res.to_csv('res.csv', index=False)
+    # dev_res = trainer.evaluate(dev_dataset)
+    # logger.info(dev_res)
+    # predict_res = trainer.predict(test_dataset)
+    # write_pkl(predict_res, cfg.save_dir + '/pred_returns_{}.pkl'.format(dev_res['eval_f1']))
+    # preds = predict_res[0]
+    # pred_labels = np.argmax(preds, axis=-1)
+    # res = {'id': [], 'label': []}
+    # test_data = load_pkl(cfg.test_file)
+    # for index, inst in enumerate(test_data):
+    #     idx = inst.idx
+    #     label_id = pred_labels[index]
+    #     res['id'].append(idx)
+    #     res['label'].append(vocab.id2label[label_id])
+    # res = pandas.DataFrame(res)
+    # res.to_csv('res.csv', index=False)
 
 
 def predict(**args):
@@ -126,12 +124,17 @@ def predict(**args):
     num_labels = len(vocab.label2id)
     model = build_model(cfg.best_model_dir, num_labels)
     data_collator = DataCollatorWithPadding(tokenizer, padding=cfg.padding, max_length=cfg.max_length)
-    trainer = Trainer(model=model, args=training_args, data_collator=data_collator, train_dataset=train_dataset, eval_dataset=dev_dataset, compute_metrics=compute_metrics)
+    trainer = Trainer(model=model,
+                      args=training_args,
+                      data_collator=data_collator,
+                      train_dataset=train_dataset,
+                      eval_dataset=dev_dataset,
+                      compute_metrics=compute_metrics)
     # 评测模型并生成测试集提交文件
     dev_res = trainer.evaluate(dev_dataset)
     logger.info(dev_res)
     predict_res = trainer.predict(test_dataset)
-    write_pkl(predict_res, cfg.save_dir + '/predict_res.pkl')
+    write_pkl(predict_res, cfg.save_dir + '/pred_returns_{:.3f}.pkl'.format(dev_res['eval_f1']))
     preds = predict_res[0]
     pred_labels = np.argmax(preds, axis=-1)
     res = {'id': [], 'label': []}
@@ -145,6 +148,4 @@ def predict(**args):
 
 
 if __name__ == '__main__':
-    #     train(num_train_epochs=20)
-    #     fire.Fire(train)
     fire.Fire({'train': train, 'pred': predict})

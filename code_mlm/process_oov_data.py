@@ -14,7 +14,7 @@ logger.setLevel(logging.INFO)
 
 def process_oov_record(record, normal_vocab,
                        idmap,
-                       min_frequence=5,
+                       min_frequence=3,
                        min_oov_word_idx=35000):
     text = record
     tokens = text.split()
@@ -65,11 +65,11 @@ def process_oov_file(input_file,
                      normal_vocab,
                      idmap):
     input_df = pd.read_csv(input_file, header=None, delimiter='\t')
-    output_df = process_oov_df(input_df, normal_vocab, idmap, min_frequence=3)
+    output_df = process_oov_df(input_df, normal_vocab, idmap, min_frequence=1)
     output_df.to_csv(output_file, header=None, sep='\t', index=False)
 
 def process_oov_words(train_file='data/mlm_data/train.tsv',
-                      test_file='data/mlm_data/test.tsv',
+            test_file='data/mlm_data/test.tsv',
                       output_dir='data/mlm_data'):
     os.makedirs(output_dir, exist_ok=True)
     logger.info('construct normal vocabulary...')
